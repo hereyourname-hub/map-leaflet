@@ -30,7 +30,7 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        var markers = JSON.parse(document.getElementById('markers-data').textContent);
+        var markers = {{ markers_json|safe }};
 
         for (var i = 0; i < markers.length; i++) {
             var marker = markers[i];
