@@ -5,23 +5,31 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-        #map {
-            width: 100%;
-            height: 100vh;
+        /* Стили для модального окна */
+        .modal {
+            display: none;
             position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 0;
+            background-color: white;
+            z-index: 1000;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        .close-button {
+            text-align: right;
         }
     </style>
 </head>
 <body>
-    <div id="map"></div>
+    <!-- Модальное окно -->
+    <div id="modal" class="modal">
+        <div class="close-button">
+            <button onclick="closeModal()">Закрыть</button>
+        </div>
+        <h2 id="marker-name"></h2>
+        <p id="marker-address"></p>
+    </div>
+
+    <div id="map" style="width: 100%; height: 100vh;"></div>
 
     <script>
         var map = L.map('map').setView([41.530744300995025, 74.82097861514897], 7);
@@ -34,13 +42,25 @@
 
         for (var i = 0; i < markers.length; i++) {
             var marker = markers[i];
-            L.marker([marker.latitude, marker.longitude]).addTo(map)
-                .bindPopup('<b>' + marker.name + '</b><br>' + marker.address)
-                .openPopup();
+            var markerObj = L.marker([marker.latitude, marker.longitude]).addTo(map);
+            markerObj.bindPopup('<b>' + marker.name + '</b><br>' + marker.address).openPopup();
+
+            markerObj.on('click', function(e) {
+                var clickedMarker = e.target;
+                document.getElementById('marker-name').textContent = clickedMarker.getPopup().getContent().split('<br>')[0].replace('<b>', '').replace('</b>', '');
+                document.getElementById('marker-address').textContent = clickedMarker.getPopup().getContent().split('<br>')[1];
+                var modal = document.getElementById('modal');
+                modal.style.display = 'block';
+                modal.style.left = clickedMarker._icon.style.left;
+                modal.style.top = (parseFloat(clickedMarker._icon.style.top) + 40) + 'px'; // Чтобы окно было над маркером
+            });
         }
-    </script>
-    <script type="application/json" id="markers-data">
-        {{ markers_json|safe }}
+
+        function closeModal() {
+            var modal = document.getElementById('modal');
+            modal.style.display = 'none';
+            modal.style.left = '-300px';
+        }
     </script>
 </body>
 </html>
