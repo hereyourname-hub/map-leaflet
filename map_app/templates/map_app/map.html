@@ -3,7 +3,10 @@
 <head>
     <title>Map of Kyrgyzstan</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <style>
         /* Стили для модального окна */
         .modal {
@@ -45,9 +48,11 @@
 
         var markers = {{ markers_json|safe }};
 
+        var markerClusterGroup = L.markerClusterGroup();
+
         for (var i = 0; i < markers.length; i++) {
             var marker = markers[i];
-            var markerObj = L.marker([marker.latitude, marker.longitude]).addTo(map);
+            var markerObj = L.marker([marker.latitude, marker.longitude]);
 
             markerObj.on('click', function(markerData) {
                 return function(e) {
@@ -60,7 +65,11 @@
                     modal.style.top = (parseFloat(clickedMarker._icon.style.top) + 40) + 'px'; // Чтобы окно было над маркером
                 };
             }(marker));
+
+            markerClusterGroup.addLayer(markerObj);
         }
+
+        map.addLayer(markerClusterGroup);
 
         function closeModal() {
             var modal = document.getElementById('modal');
