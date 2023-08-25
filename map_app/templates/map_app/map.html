@@ -25,9 +25,12 @@
     <!-- Модальное окно -->
     <div id="modal" class="modal">
         <div class="close-button">
-            <button onclick="closeModal()">Закрыть</button>
+            <button onclick="closeModal()">X</button>
         </div>
-        <h2 id="marker-name"></h2>
+        <h3></h3><br>
+        <h3>Название:</h3>
+        <p id="marker-name"></p>
+        <h3>Адрес:</h3>
         <p id="marker-address"></p>
     </div>
 
@@ -45,17 +48,18 @@
         for (var i = 0; i < markers.length; i++) {
             var marker = markers[i];
             var markerObj = L.marker([marker.latitude, marker.longitude]).addTo(map);
-            markerObj.bindPopup('<b>' + marker.name + '</b><br>' + marker.address).openPopup();
 
-            markerObj.on('click', function(e) {
-                var clickedMarker = e.target;
-                document.getElementById('marker-name').textContent = clickedMarker.getPopup().getContent().split('<br>')[0].replace('<b>', '').replace('</b>', '');
-                document.getElementById('marker-address').textContent = clickedMarker.getPopup().getContent().split('<br>')[1];
-                var modal = document.getElementById('modal');
-                modal.style.display = 'block';
-                modal.style.left = clickedMarker._icon.style.left;
-                modal.style.top = (parseFloat(clickedMarker._icon.style.top) + 40) + 'px'; // Чтобы окно было над маркером
-            });
+            markerObj.on('click', function(markerData) {
+                return function(e) {
+                    var clickedMarker = e.target;
+                    document.getElementById('marker-name').textContent = markerData.name;
+                    document.getElementById('marker-address').textContent = markerData.address;
+                    var modal = document.getElementById('modal');
+                    modal.style.display = 'block';
+                    modal.style.left = clickedMarker._icon.style.left;
+                    modal.style.top = (parseFloat(clickedMarker._icon.style.top) + 40) + 'px'; // Чтобы окно было над маркером
+                };
+            }(marker));
         }
 
         function closeModal() {
